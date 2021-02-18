@@ -1,0 +1,60 @@
+= Вирішення проблеми javax.net.ssl.SSLHandshakeException
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+// Settings:
+:idprefix:
+:idseparator: -
+:linkattrs:
+
+При отриманні Gradle Wrapper, або бібліотек з репозиторієв Maven виникає помилка:
+
+----
+Exception in thread "main" java.lang.RuntimeException: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBu
+ilderException: unable to find valid certification path to requested target
+...
+Caused by: javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certifi
+cation path to requested target
+...
+----
+
+Проблема виникає при використанні самопідписаного сертифікату. 
+
+Для вирішення проблеми потрібно, щоб сертифікат сервера і організації були в сховищі сертифікатів.
+
+Приклад для https://services.gradle.org:
+
+* в браузері відкриваємо сайт
+* в адресному рядку нажимаємо на "замочок"
+* в новому вікні нажимаємо на "Сертифікат"
+* в новому вікні переходимо на вкладку "Состав" 
+* нажимаємо "Копировать в файл..."
+* зберігаємо сертифікат в файл в кодуванні DER
+
+Для збереження сертифікату підприємства потрібно:
+
+* перейти на вкладку "Путь сертификации";
+* вибрати верхній рівень шляху сертифікації;
+* нажати кнопку "Просмотр сертификата"
+* зберігаємо сертифікат аналогічно тому як вказано вище
+
+Після збереження сертифікату потрібно добавити його в сховище сертифікатів.
+
+Переважно сховище сертифікатів знаходиться в файлі %JAVA_HOME%\lib\security\cacerts
+
+Приклад добавлення сертифікату з файлу bintray.cer в сховище з аліасом bintray:
+
+```
+REM перевіряємо чи сертифікат з таким аліасом вже є в сховищі
+%JAVA_HOME%\bin\keytool.exe -list -alias bintray -storepass changeit -noprompt -cacerts
+
+REM якщо такий аліас вже є, то видаляємо його
+%JAVA_HOME%\bin\keytool.exe -delete -alias bintray -storepass changeit -noprompt -cacerts
+
+REM добавляємо новий сертифікат
+%JAVA_HOME%\bin\keytool.exe -import -noprompt -trustcacerts -alias bintray -file c:\Work\workspace\Java\certificates\bintray.cer  -storepass changeit -cacerts
+```
+
+CAUTION: Всі роботи потрібно виконувати під адміністратором
+
+Для роботи з сховищем зручно використовувати link:https://keystore-explorer.org/[KeyStore Explorer]

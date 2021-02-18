@@ -1,4 +1,6 @@
-= Guidelines
+:toc:
+
+= Java
 ifndef::env-site,env-github[]
 include::_attributes.adoc[]
 endif::[]
@@ -7,7 +9,5 @@ endif::[]
 :idseparator: -
 :linkattrs:
 
-The aim of this project is to help you develop APIs
 
-* A long list of guidelines to develop awesome APIs.
-* And how to deploy it on GCP
+include::solve-SSLHandshakeException.adoc[]
